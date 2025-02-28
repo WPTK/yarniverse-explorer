@@ -4,12 +4,10 @@ import { StatsSummary } from "@/utils/stats-utils";
 import { YarnItem } from "@/types/yarn";
 import { useEffect, useState } from "react";
 import { calculateStats } from "@/utils/stats-utils";
+import { useYarn } from "@/contexts/yarn-context";
 
-interface SummaryCardsProps {
-  data: YarnItem[];
-}
-
-export function SummaryCards({ data }: SummaryCardsProps) {
+export function SummaryCards() {
+  const { data } = useYarn();
   const [stats, setStats] = useState<StatsSummary | null>(null);
   
   useEffect(() => {

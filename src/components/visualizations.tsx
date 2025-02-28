@@ -7,12 +7,10 @@ import { YarnItem } from "@/types/yarn";
 import { getTopBrands, getTopColors, getWeightDistribution } from "@/utils/stats-utils";
 import { getColorCode } from "@/utils/color-utils";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import { useYarn } from "@/contexts/yarn-context";
 
-interface VisualizationsProps {
-  data: YarnItem[];
-}
-
-export function Visualizations({ data }: VisualizationsProps) {
+export function Visualizations() {
+  const { data } = useYarn();
   const [topBrands, setTopBrands] = useState<Array<{ name: string, count: number }>>([]);
   const [topColors, setTopColors] = useState<Array<{ name: string, count: number }>>([]);
   const [weightDistribution, setWeightDistribution] = useState<Array<{ name: string, count: number }>>([]);

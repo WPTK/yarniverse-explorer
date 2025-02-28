@@ -97,14 +97,17 @@ class CSVService {
       const multicolorValue = row[CSV_COLUMN_MAPPING.multicolor]?.toLowerCase();
       const isMulticolor = multicolorValue === 'yes' || multicolorValue === 'true' || multicolorValue === '1';
       
+      // Ensure weight is lowercase to match the YarnWeight type
+      const weightValue = row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other';
+      
       return {
         id: `yarn-${index}`,
         brand: row[CSV_COLUMN_MAPPING.brand] || '',
         subBrand: row[CSV_COLUMN_MAPPING.subBrand] || '',
-        length: parseInt(row[CSV_COLUMN_MAPPING.length]) || 0,
+        length: parseInt(row[CSV_COLUMN_MAPPING.length], 10) || 0,
         multicolor: isMulticolor,
-        weight: row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other',
-        rows: parseInt(row[CSV_COLUMN_MAPPING.rows]) || 0,
+        weight: weightValue,
+        rows: parseInt(row[CSV_COLUMN_MAPPING.rows], 10) || 0,
         colors: colors
       };
     });
