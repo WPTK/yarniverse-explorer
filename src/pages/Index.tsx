@@ -86,11 +86,11 @@ const Index = () => {
                 <div className="md:col-span-6 space-y-4">
                   <Visualizations />
                   <DataView />
-                  
-                  <div className="md:hidden mt-4">
-                    <SavedViews />
-                  </div>
                 </div>
+              </div>
+              
+              <div className="md:hidden mt-4">
+                <SavedViews />
               </div>
             </>
           ) : (
