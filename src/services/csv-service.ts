@@ -23,7 +23,7 @@ class CSVService {
   private intervalId: number | null = null;
   private onDataUpdate: ((data: YarnItem[]) => void) | null = null;
 
-  constructor(filePath: string = "/data/yarn-collection.csv") {
+  constructor(filePath: string = "./data/yarn-collection.csv") {
     this.filePath = filePath;
   }
 
