@@ -4,7 +4,6 @@ import { YarnProvider } from "@/contexts/yarn-context";
 import { SummaryCards } from "@/components/summary-cards";
 import { FiltersSidebar } from "@/components/filters-sidebar";
 import { DataView } from "@/components/data-view";
-import { Visualizations } from "@/components/visualizations";
 import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
@@ -83,8 +82,7 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="md:col-span-6 space-y-4">
-                  <Visualizations />
+                <div className="md:col-span-6">
                   <DataView />
                 </div>
               </div>
