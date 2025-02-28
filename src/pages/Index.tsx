@@ -10,26 +10,31 @@ import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { toast } = useToast();
-  const [csvConfigured, setCsvConfigured] = useState(false);
+  const [csvConfigured, setCsvConfigured] = useState<boolean | null>(null);
+  const [isCheckingCsv, setIsCheckingCsv] = useState(true);
   
   // Check if CSV file exists on mount
   useEffect(() => {
     const checkCsvFile = async () => {
       try {
+        setIsCheckingCsv(true);
         // Use a relative path to ensure it works with the basename
         const response = await fetch('./data/yarn-collection.csv');
         if (response.ok) {
           setCsvConfigured(true);
         } else {
-          throw new Error("CSV file not found");
+          throw new Error(`CSV file not found: ${response.status} ${response.statusText}`);
         }
       } catch (error) {
-        console.error("CSV file not found:", error);
+        console.error("CSV file error:", error);
+        setCsvConfigured(false);
         toast({
           title: "CSV File Not Found",
           description: "Please create a CSV file at '/data/yarn-collection.csv' with your yarn collection data.",
           variant: "destructive",
         });
+      } finally {
+        setIsCheckingCsv(false);
       }
     };
     
@@ -66,7 +71,12 @@ const Index = () => {
         </header>
         
         <main className="container py-4">
-          {csvConfigured ? (
+          {isCheckingCsv ? (
+            <div className="flex flex-col items-center justify-center min-h-[70vh]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p className="mt-4 text-muted-foreground">Checking for CSV data...</p>
+            </div>
+          ) : csvConfigured ? (
             <>
               <section className="mb-4">
                 <SummaryCards />

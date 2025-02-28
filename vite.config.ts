@@ -16,4 +16,23 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    sourcemap: false,
+    minify: 'terser',
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: [
+            '@/components/ui/toast',
+            '@/components/ui/toaster',
+            '@/components/ui/slider',
+            '@/components/ui/tabs'
+          ]
+        }
+      }
+    }
+  }
 })
