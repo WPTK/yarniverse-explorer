@@ -7,12 +7,12 @@ import { calculateStats } from "@/utils/stats-utils";
 import { useYarn } from "@/contexts/yarn-context";
 
 export function SummaryCards() {
-  const { data } = useYarn();
+  const { filteredData } = useYarn();
   const [stats, setStats] = useState<StatsSummary | null>(null);
   
   useEffect(() => {
-    setStats(calculateStats(data));
-  }, [data]);
+    setStats(calculateStats(filteredData));
+  }, [filteredData]);
   
   if (!stats) {
     return (

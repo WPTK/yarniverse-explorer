@@ -10,23 +10,23 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis
 import { useYarn } from "@/contexts/yarn-context";
 
 export function Visualizations() {
-  const { data } = useYarn();
+  const { filteredData } = useYarn();
   const [topBrands, setTopBrands] = useState<Array<{ name: string, count: number }>>([]);
   const [topColors, setTopColors] = useState<Array<{ name: string, count: number }>>([]);
   const [weightDistribution, setWeightDistribution] = useState<Array<{ name: string, count: number }>>([]);
   
   useEffect(() => {
-    if (data.length === 0) return;
+    if (filteredData.length === 0) return;
     
-    setTopBrands(getTopBrands(data, 5));
-    setTopColors(getTopColors(data, 5));
-    setWeightDistribution(getWeightDistribution(data));
-  }, [data]);
+    setTopBrands(getTopBrands(filteredData, 5));
+    setTopColors(getTopColors(filteredData, 5));
+    setWeightDistribution(getWeightDistribution(filteredData));
+  }, [filteredData]);
   
   // Colors for charts
   const COLORS = ['#8B5CF6', '#D946EF', '#0EA5E9', '#6E59A5', '#1EAEDB', '#33C3F0'];
   
-  if (data.length === 0) {
+  if (filteredData.length === 0) {
     return (
       <Card className="glass-card h-full">
         <CardHeader>
