@@ -40,7 +40,7 @@ const Index = () => {
     <YarnProvider>
       <div className="min-h-screen bg-background">
         <header className="border-b border-border sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
-          <div className="container flex h-16 items-center justify-between py-4">
+          <div className="container flex h-14 items-center justify-between py-3">
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +50,7 @@ const Index = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="h-6 w-6"
+                className="h-5 w-5"
               >
                 <path d="M12 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
                 <path d="M18.42 12.5C21.5 12.5 22 10 22 8.5C22 7.34 21.5 6.37 20.73 5.75M18.42 12.5C16.4 12.5 14.5 14.55 14.5 16.62C14.5 19.94 16.71 21.7 20.73 18.33M18.42 12.5H14.5" />
@@ -59,39 +59,48 @@ const Index = () => {
                 <path d="M8 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
                 <path d="M8 16c0-6 8-6 8-12" />
               </svg>
-              <h1 className="text-xl font-semibold">Yarniverse Explorer</h1>
+              <h1 className="text-lg font-semibold">Yarniverse Explorer</h1>
             </div>
             <ThemeToggle />
           </div>
         </header>
         
-        <main className="container py-6">
+        <main className="container py-4">
           {csvConfigured ? (
             <>
-              <section className="mb-6">
+              <section className="mb-4">
                 <SummaryCards />
               </section>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <div className="md:col-span-1 space-y-6">
-                  <FiltersSidebar />
+              <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
+                <div className="md:col-span-2">
+                  <div className="space-y-4 sticky top-[4.5rem]">
+                    <FiltersSidebar />
+                    
+                    <div className="hidden md:block">
+                      <SavedViews />
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="md:col-span-2 lg:col-span-3 space-y-6">
+                <div className="md:col-span-6 space-y-4">
                   <Visualizations />
-                  <SavedViews />
                   <DataView />
+                  
+                  <div className="md:hidden mt-4">
+                    <SavedViews />
+                  </div>
                 </div>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
-              <div className="glass-card p-8 max-w-md text-center">
-                <h2 className="text-2xl font-semibold mb-4">CSV File Setup Required</h2>
-                <p className="mb-6">
+              <div className="glass-card p-6 max-w-md text-center">
+                <h2 className="text-xl font-semibold mb-3">CSV File Setup Required</h2>
+                <p className="mb-4">
                   To use this application, you need to create a CSV file with your yarn collection data.
                 </p>
-                <div className="text-left space-y-4">
+                <div className="text-left space-y-3">
                   <div>
                     <h3 className="font-medium mb-1">1. Create a CSV file with these columns:</h3>
                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
@@ -119,8 +128,8 @@ const Index = () => {
           )}
         </main>
         
-        <footer className="border-t border-border">
-          <div className="container py-6 text-center text-sm text-muted-foreground">
+        <footer className="border-t border-border mt-4">
+          <div className="container py-4 text-center text-xs text-muted-foreground">
             <p>Yarn Collection Visualization • View and analyze your yarn collection</p>
           </div>
         </footer>

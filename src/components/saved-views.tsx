@@ -45,32 +45,32 @@ export function SavedViews() {
   
   return (
     <Card className="glass-card h-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center">
-          <Bookmark className="mr-2 h-5 w-5" />
+      <CardHeader className="pb-2 pt-3">
+        <CardTitle className="flex items-center text-base">
+          <Bookmark className="mr-2 h-4 w-4" />
           Saved Views
         </CardTitle>
-        <CardDescription>
-          Save and quickly access your filter combinations
+        <CardDescription className="text-xs">
+          Save filter combinations for quick access
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        <ScrollArea className="h-[180px] pr-2 custom-scrollbar">
+      <CardContent className="pt-0 px-3">
+        <ScrollArea className="h-[140px] pr-2 custom-scrollbar">
           {savedViews.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <p>No saved views yet</p>
-              <p className="text-sm mt-1">Save your current filter settings to access them later</p>
+            <div className="text-center py-4 text-muted-foreground">
+              <p className="text-sm">No saved views yet</p>
+              <p className="text-xs mt-1">Save your current filters to access them later</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {savedViews.map((view) => (
                 <div
                   key={view.id}
-                  className="flex items-center justify-between p-2 rounded-md hover:bg-accent group"
+                  className="flex items-center justify-between p-1.5 rounded-md hover:bg-accent group"
                 >
                   <div className="flex-1 cursor-pointer" onClick={() => loadSavedView(view.id)}>
-                    <h4 className="text-sm font-medium">{view.name}</h4>
+                    <h4 className="text-xs font-medium">{view.name}</h4>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(view.createdAt)}
                     </p>
@@ -78,10 +78,10 @@ export function SavedViews() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => deleteSavedView(view.id)}
                   >
-                    <Trash className="h-4 w-4" />
+                    <Trash className="h-3 w-3" />
                   </Button>
                 </div>
               ))}
@@ -90,15 +90,15 @@ export function SavedViews() {
         </ScrollArea>
       </CardContent>
       
-      <CardFooter className="pt-2">
+      <CardFooter className="pt-1 pb-3 px-3">
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="w-full">
-              <Save className="mr-2 h-4 w-4" />
+            <Button size="sm" variant="outline" className="w-full text-xs h-8">
+              <Save className="mr-1 h-3 w-3" />
               Save Current View
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>
               <DialogTitle>Save View</DialogTitle>
               <DialogDescription>
@@ -113,10 +113,10 @@ export function SavedViews() {
             />
             <DialogFooter className="mt-4">
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" size="sm">Cancel</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button onClick={handleSave} disabled={!viewName.trim()}>
+                <Button size="sm" onClick={handleSave} disabled={!viewName.trim()}>
                   Save
                 </Button>
               </DialogClose>

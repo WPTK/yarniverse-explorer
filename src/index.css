@@ -33,7 +33,7 @@
     --input: 240 5.9% 90%;
     --ring: 270 65% 60%;
     
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
   
   .dark {
@@ -84,27 +84,27 @@
   }
   
   .glass-card {
-    @apply glass shadow-md hover:shadow-lg transition-all duration-300;
+    @apply glass shadow-sm hover:shadow-md transition-all duration-300 rounded-lg;
   }
   
   .grid-card {
-    @apply relative flex flex-col rounded-2xl overflow-hidden border border-border p-4;
+    @apply relative flex flex-col rounded-lg overflow-hidden border border-border p-3;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   
   .grid-card:hover {
-    transform: translateY(-4px);
-    @apply shadow-md;
+    transform: translateY(-2px);
+    @apply shadow-sm;
   }
   
   .animate-in {
-    animation: animateIn 0.3s ease forwards;
+    animation: animateIn 0.25s ease forwards;
   }
   
   @keyframes animateIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(5px);
     }
     to {
       opacity: 1;
@@ -114,8 +114,8 @@
   
   /* Custom scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -129,11 +129,11 @@
   /* Transitions */
   .page-transition {
     transition-property: transform, opacity;
-    transition-duration: 0.3s;
+    transition-duration: 0.25s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .color-pill {
-    @apply inline-block h-6 w-6 rounded-full border border-border shadow-sm;
+    @apply inline-block h-5 w-5 rounded-full border border-border shadow-sm;
   }
 }
