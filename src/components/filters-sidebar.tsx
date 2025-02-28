@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { YarnWeight } from "@/types/yarn";
 import { getColorCode, getAllColorGroups } from "@/utils/color-utils";
-import { FilterX, Search } from "lucide-react";
+import { FilterX, Search, ChevronDown, ChevronUp } from "lucide-react";
 
 export function FiltersSidebar() {
   const { 
@@ -25,7 +25,11 @@ export function FiltersSidebar() {
   const [uniqueWeights, setUniqueWeights] = useState<YarnWeight[]>([]);
   const [lengthRange, setLengthRange] = useState<[number, number]>([0, 0]);
   const [rowsRange, setRowsRange] = useState<[number, number]>([0, 0]);
+  const [showAllBrands, setShowAllBrands] = useState(false);
   const colorGroups = getAllColorGroups();
+  
+  // Number of brands to show initially
+  const INITIAL_BRANDS_SHOWN = 5;
   
   // Extract unique values from data
   useEffect(() => {
@@ -106,6 +110,16 @@ export function FiltersSidebar() {
     });
   };
   
+  // Toggle showing all brands
+  const toggleShowAllBrands = () => {
+    setShowAllBrands(!showAllBrands);
+  };
+  
+  // Get the brands to display based on the showAllBrands state
+  const displayedBrands = showAllBrands 
+    ? uniqueBrands 
+    : uniqueBrands.slice(0, INITIAL_BRANDS_SHOWN);
+  
   return (
     <div className="p-4 rounded-lg glass-card h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -136,7 +150,7 @@ export function FiltersSidebar() {
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Brands</h3>
           <div className="space-y-1 ml-1">
-            {uniqueBrands.map(brand => (
+            {displayedBrands.map(brand => (
               <div key={brand} className="flex items-center space-x-2">
                 <Checkbox
                   id={`brand-${brand}`}
@@ -150,6 +164,21 @@ export function FiltersSidebar() {
                 </Label>
               </div>
             ))}
+            
+            {uniqueBrands.length > INITIAL_BRANDS_SHOWN && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleShowAllBrands}
+                className="text-xs mt-1 w-full flex items-center justify-center"
+              >
+                {showAllBrands ? (
+                  <>Show Less <ChevronUp className="ml-1 h-3 w-3" /></>
+                ) : (
+                  <>Show More ({uniqueBrands.length - INITIAL_BRANDS_SHOWN} more) <ChevronDown className="ml-1 h-3 w-3" /></>
+                )}
+              </Button>
+            )}
           </div>
         </div>
         
