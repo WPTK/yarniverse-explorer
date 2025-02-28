@@ -16,7 +16,8 @@ const Index = () => {
   useEffect(() => {
     const checkCsvFile = async () => {
       try {
-        const response = await fetch('/data/yarn-collection.csv');
+        // Use a relative path to ensure it works with the basename
+        const response = await fetch('./data/yarn-collection.csv');
         if (response.ok) {
           setCsvConfigured(true);
         } else {
