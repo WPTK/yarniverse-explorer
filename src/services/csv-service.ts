@@ -1,5 +1,5 @@
 
-import { YarnItem } from "@/types/yarn";
+import { YarnItem, YarnWeight } from "@/types/yarn";
 import Papa from "papaparse";
 
 // IMPORTANT: Update these column names to match your CSV structure
@@ -156,8 +156,18 @@ class CSVService {
       const multicolorValue = row[CSV_COLUMN_MAPPING.multicolor]?.toLowerCase();
       const isMulticolor = multicolorValue === 'yes' || multicolorValue === 'true' || multicolorValue === '1';
       
-      // Ensure weight is lowercase to match the YarnWeight type
-      const weightValue = (row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other') as string;
+      // Ensure weight is converted to valid YarnWeight type
+      let weightValue = (row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other') as string;
+      
+      // Convert to a valid YarnWeight value
+      const validWeights: YarnWeight[] = [
+        "lace", "super fine", "fine", "light", "medium", 
+        "bulky", "super bulky", "jumbo", "other"
+      ];
+      
+      if (!validWeights.includes(weightValue as YarnWeight)) {
+        weightValue = "other";
+      }
       
       return {
         id: `yarn-${index}`,
@@ -165,7 +175,7 @@ class CSVService {
         subBrand: row[CSV_COLUMN_MAPPING.subBrand] || '',
         length: parseInt(row[CSV_COLUMN_MAPPING.length], 10) || 0,
         multicolor: isMulticolor,
-        weight: weightValue,
+        weight: weightValue as YarnWeight,
         rows: parseInt(row[CSV_COLUMN_MAPPING.rows], 10) || 0,
         colors: colors
       };
