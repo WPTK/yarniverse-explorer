@@ -1,69 +1,95 @@
-# Welcome to your Lovable project
 
-## Project info
+# Yarniverse Explorer
 
-**URL**: https://lovable.dev/projects/57fcbf8f-c261-4935-bd91-0761ebc4842f
+A modern, responsive web application for visualizing and exploring your yarn collection.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Interactive Data Views**: Toggle between table and grid views
+- **Powerful Filtering**: Filter by brand, weight, colors, and more
+- **Modern Visualizations**: Automatically generated charts and graphs
+- **Summary Statistics**: Quick overview of your collection
+- **Saved Views**: Save your filter combinations for quick access
+- **Infinite Scroll**: Smooth loading for large collections
+- **Dark Mode**: Toggle between light and dark themes
+- **Fully Responsive**: Works on desktop and mobile devices
 
-**Use Lovable**
+## Setup Instructions
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/57fcbf8f-c261-4935-bd91-0761ebc4842f) and start prompting.
+### 1. CSV File Configuration
 
-Changes made via Lovable will be committed automatically to this repo.
+The app reads yarn data from a CSV file stored at `/public/data/yarn-collection.csv`. The file should have the following columns:
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+Brand,Sub-brand,Length (yards),Multicolor,Weight,Rows,Color 1,Color 2,Color 3
 ```
 
-**Edit a file directly in GitHub**
+Example row:
+```
+Lion Brand,Wool-Ease,197,No,Medium,28,Navy Blue,,
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 2. Customizing CSV Column Names
 
-**Use GitHub Codespaces**
+If you need to change the CSV column names or structure, you can update the mapping in the file:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+`src/services/csv-service.ts`
 
-## What technologies are used for this project?
+Look for the `CSV_COLUMN_MAPPING` object and update the property values to match your CSV headers:
 
-This project is built with .
+```typescript
+const CSV_COLUMN_MAPPING = {
+  brand: "Brand",                // Your CSV header for brand
+  subBrand: "Sub-brand",         // Your CSV header for sub-brand
+  length: "Length (yards)",      // Your CSV header for length
+  multicolor: "Multicolor",      // Your CSV header for multicolor flag
+  weight: "Weight",              // Your CSV header for weight
+  rows: "Rows",                  // Your CSV header for rows
+  color1: "Color 1",             // Your CSV header for first color
+  color2: "Color 2",             // Your CSV header for second color
+  color3: "Color 3",             // Your CSV header for third color
+};
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 3. Working with Colors
 
-## How can I deploy this project?
+The app automatically categorizes colors into color groups based on common color names. If you want to add more color names or modify existing ones, you can update:
 
-Simply open [Lovable](https://lovable.dev/projects/57fcbf8f-c261-4935-bd91-0761ebc4842f) and click on Share -> Publish.
+`src/utils/color-utils.ts`
 
-## I want to use a custom domain - is that possible?
+## Usage
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### Filtering
+
+- Use the filters panel on the left to filter your yarn collection
+- Multiple filters can be combined
+- Click "Reset" to clear all filters at once
+
+### Sorting (Table View)
+
+- Click on column headers to sort the data
+- Click again to toggle between ascending and descending order
+
+### Saving Views
+
+- Click "Save Current View" to save your current filter configuration
+- Enter a name for your view
+- Access saved views from the Saved Views panel
+
+### Switching Between Views
+
+- Use the table/grid toggle at the top right of the data panel
+
+## Project Structure
+
+- `/src/components`: UI components
+- `/src/contexts`: Data contexts (yarn data provider)
+- `/src/services`: Services for data loading and processing
+- `/src/utils`: Utility functions for colors, statistics, etc.
+- `/src/types`: TypeScript type definitions
+- `/public/data`: Location for the CSV data file
+
+## Feedback and Issues
+
+If you encounter any issues or have feedback, please submit it to the project repository.
+
