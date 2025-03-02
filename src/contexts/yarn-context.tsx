@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { YarnItem, FilterState, SavedView } from "@/types/yarn";
 import CSVService from "@/services/csv-service";
@@ -24,6 +25,7 @@ const defaultFilters: FilterState = {
   subBrands: [],
   weights: [],
   materials: [],
+  hookSizes: [],
   vintage: null,
   machineWash: null,
   machineDry: null,
@@ -31,6 +33,8 @@ const defaultFilters: FilterState = {
   colorGroups: [],
   minLength: null,
   maxLength: null,
+  minQty: null,
+  maxQty: null,
   minRows: null,
   maxRows: null,
   minSoftness: null,
@@ -109,22 +113,27 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      // Materials filter (new)
+      // Materials filter
       if (filters.materials.length > 0 && !filters.materials.includes(item.material)) {
         return false;
       }
       
-      // Vintage filter (new)
+      // Hook Size filter
+      if (filters.hookSizes.length > 0 && !filters.hookSizes.includes(item.hookSize)) {
+        return false;
+      }
+      
+      // Vintage filter
       if (filters.vintage !== null && item.vintage !== filters.vintage) {
         return false;
       }
       
-      // Machine wash filter (new)
+      // Machine wash filter
       if (filters.machineWash !== null && item.machineWash !== filters.machineWash) {
         return false;
       }
       
-      // Machine dry filter (new)
+      // Machine dry filter
       if (filters.machineDry !== null && item.machineDry !== filters.machineDry) {
         return false;
       }
@@ -142,6 +151,14 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
+      // Quantity range filter
+      if (filters.minQty !== null && item.qty < filters.minQty) {
+        return false;
+      }
+      if (filters.maxQty !== null && item.qty > filters.maxQty) {
+        return false;
+      }
+      
       // Rows range filter
       if (filters.minRows !== null && item.rows < filters.minRows) {
         return false;
@@ -150,7 +167,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      // Softness ranking range filter (new)
+      // Softness ranking range filter
       if (filters.minSoftness !== null && item.softnessRanking < filters.minSoftness) {
         return false;
       }
@@ -158,7 +175,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      // Search filter (updated to include new fields)
+      // Search filter (updated to include all relevant fields)
       if (filters.search && filters.search.trim() !== '') {
         const searchLower = filters.search.toLowerCase();
         const searchMatch = 

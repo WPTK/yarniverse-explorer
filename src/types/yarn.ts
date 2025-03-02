@@ -40,6 +40,7 @@ export interface FilterState {
   subBrands: string[];
   weights: YarnWeight[];
   materials: string[];
+  hookSizes: string[];
   vintage: boolean | null;
   machineWash: boolean | null;
   machineDry: boolean | null;
@@ -47,6 +48,8 @@ export interface FilterState {
   colorGroups: string[];
   minLength: number | null;
   maxLength: number | null;
+  minQty: number | null;
+  maxQty: number | null;
   minRows: number | null;
   maxRows: number | null;
   minSoftness: number | null;

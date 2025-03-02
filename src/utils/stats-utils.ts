@@ -4,6 +4,7 @@ import { YarnItem } from "@/types/yarn";
 export interface StatsSummary {
   totalSkeins: number;
   totalYards: number;
+  totalMiles: number;
   averageYardsPerSkein: number;
   totalBrands: number;
   totalSubBrands: number;
@@ -17,6 +18,7 @@ export function calculateStats(data: YarnItem[]): StatsSummary {
   const summary: StatsSummary = {
     totalSkeins: 0,
     totalYards: 0,
+    totalMiles: 0,
     averageYardsPerSkein: 0,
     totalBrands: 0,
     totalSubBrands: 0,
@@ -33,6 +35,9 @@ export function calculateStats(data: YarnItem[]): StatsSummary {
   summary.totalSkeins = data.length;
   summary.totalYards = data.reduce((sum, item) => sum + item.length, 0);
   summary.averageYardsPerSkein = Math.round(summary.totalYards / summary.totalSkeins);
+  
+  // Calculate miles (1760 yards = 1 mile)
+  summary.totalMiles = summary.totalYards / 1760;
   
   // Count unique brands and sub-brands
   const uniqueBrands = new Set<string>();

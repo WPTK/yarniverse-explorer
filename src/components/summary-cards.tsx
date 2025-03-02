@@ -16,8 +16,8 @@ export function SummaryCards() {
   
   if (!stats) {
     return (
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="pb-2">
               <div className="h-4 bg-muted rounded w-1/2"></div>
@@ -32,7 +32,7 @@ export function SummaryCards() {
   }
   
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 animate-in">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 animate-in">
       <Card className="glass-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Total Skeins</CardTitle>
@@ -50,6 +50,16 @@ export function SummaryCards() {
         </CardHeader>
         <CardContent>
           <p className="text-3xl font-semibold">{stats.totalYards.toLocaleString()}</p>
+        </CardContent>
+      </Card>
+      
+      <Card className="glass-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl">Total Miles</CardTitle>
+          <CardDescription>Yards converted to miles</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-3xl font-semibold">{stats.totalMiles.toFixed(2)}</p>
         </CardContent>
       </Card>
       
