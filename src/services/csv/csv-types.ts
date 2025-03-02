@@ -39,8 +39,6 @@ export interface CSVServiceOptions {
   pollingInterval?: number;
   /** Maximum number of attempts to load the CSV file before giving up. Defaults to 3. */
   maxLoadAttempts?: number;
-  /** Whether to use sample data instead of loading from a file. Defaults to false. */
-  useSampleData?: boolean;
 }
 
 /**

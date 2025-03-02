@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { YarnItem, FilterState, SavedView } from "@/types/yarn";
 import CSVService from "@/services/csv-service";
-import { CSVServiceOptions } from "@/services/csv/csv-types";
 import { useToast } from "@/hooks/use-toast";
 import { getAllColorGroups } from "@/utils/color-utils";
 
@@ -19,11 +18,6 @@ interface YarnContextType {
   deleteSavedView: (id: string) => void;
   csvService: CSVService;
   updateYarnItem: (id: string, updates: Partial<YarnItem>) => void;
-}
-
-interface YarnProviderProps {
-  children: React.ReactNode;
-  initialOptions?: CSVServiceOptions;
 }
 
 // Updated default filter state with new fields
@@ -51,7 +45,7 @@ const defaultFilters: FilterState = {
 
 const YarnContext = createContext<YarnContextType | undefined>(undefined);
 
-export function YarnProvider({ children, initialOptions = {} }: YarnProviderProps) {
+export function YarnProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<YarnItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -59,8 +53,8 @@ export function YarnProvider({ children, initialOptions = {} }: YarnProviderProp
   const [savedViews, setSavedViews] = useState<SavedView[]>([]);
   const { toast } = useToast();
   
-  // Initialize CSV service with options
-  const csvService = useMemo(() => new CSVService(undefined, initialOptions), [initialOptions]);
+  // Initialize CSV service
+  const csvService = useMemo(() => new CSVService(), []);
 
   // Get all color groups for filtering
   const allColorGroups = useMemo(() => getAllColorGroups(), []);

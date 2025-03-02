@@ -15,7 +15,6 @@ import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
 import { Rocket } from "lucide-react"; // Changed to Rocket icon
-import CSVService from "@/services/csv-service";
 
 /**
  * Main Index component that serves as the application entry point.
@@ -24,7 +23,6 @@ const Index = () => {
   const { toast } = useToast();
   const [csvConfigured, setCsvConfigured] = useState<boolean | null>(null);
   const [isCheckingCsv, setIsCheckingCsv] = useState(true);
-  const [usingSampleData, setUsingSampleData] = useState(false);
   
   /**
    * Check if CSV file exists on mount and configure the application state accordingly.
@@ -43,13 +41,11 @@ const Index = () => {
       } catch (error) {
         console.error("CSV file error:", error);
         setCsvConfigured(false);
-        
-        // Notify the user about using sample data
         toast({
-          title: "Using Sample Data",
-          description: "Loading example yarn collection data for demonstration.",
+          title: "CSV File Not Found",
+          description: "Please create a CSV file at '/data/yarn-collection.csv' with your yarn collection data.",
+          variant: "destructive",
         });
-        setUsingSampleData(true);
       } finally {
         setIsCheckingCsv(false);
       }
@@ -137,7 +133,7 @@ const Index = () => {
   );
   
   return (
-    <YarnProvider initialOptions={{ useSampleData: usingSampleData }}>
+    <YarnProvider>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="border-b border-border sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
@@ -154,7 +150,7 @@ const Index = () => {
         <main className="container py-4">
           {isCheckingCsv 
             ? renderLoadingState()
-            : (csvConfigured || usingSampleData)
+            : csvConfigured 
               ? renderMainContent() 
               : renderSetupInstructions()
           }
