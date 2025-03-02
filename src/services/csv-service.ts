@@ -1,4 +1,3 @@
-
 import { YarnItem, YarnWeight } from "@/types/yarn";
 import Papa from "papaparse";
 
@@ -61,6 +60,77 @@ class CSVService {
       window.clearInterval(this.intervalId);
       this.intervalId = null;
     }
+  }
+
+  public async updateData(updatedData: YarnItem[]): Promise<boolean> {
+    try {
+      // Convert YarnItem array back to CSV format
+      const csvData = this.convertToCSV(updatedData);
+      
+      // In a real application, you would send this data to a server endpoint
+      // that would update the CSV file on the server. Since we're working with
+      // a local CSV file that can't be directly modified by the client,
+      // we'll log the data and return success for now.
+      console.log('Data update requested with:', csvData);
+      
+      // In a real implementation, you might do something like:
+      // const response = await fetch('/api/update-csv', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ data: csvData }),
+      // });
+      // return response.ok;
+      
+      // For now, let's just trigger a reload of the data after "updating"
+      if (this.onDataUpdate) {
+        this.onDataUpdate(updatedData);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating CSV data:', error);
+      return false;
+    }
+  }
+
+  private convertToCSV(data: YarnItem[]): string {
+    // Get headers from our column mapping
+    const headers = Object.values(CSV_COLUMN_MAPPING);
+    
+    // Convert the YarnItem objects to row objects that match our CSV structure
+    const rows = data.map(item => {
+      const row: Record<string, any> = {};
+      
+      // Map each property back to the CSV column
+      row[CSV_COLUMN_MAPPING.brand] = item.brand;
+      row[CSV_COLUMN_MAPPING.subBrand] = item.subBrand;
+      row[CSV_COLUMN_MAPPING.vintage] = item.vintage ? 'Yes' : 'No';
+      row[CSV_COLUMN_MAPPING.qty] = item.qty.toString();
+      row[CSV_COLUMN_MAPPING.length] = item.length.toString();
+      row[CSV_COLUMN_MAPPING.multicolor] = item.multicolor ? 'Yes' : 'No';
+      row[CSV_COLUMN_MAPPING.softnessRanking] = item.softnessRanking.toString();
+      row[CSV_COLUMN_MAPPING.weight] = item.weight;
+      row[CSV_COLUMN_MAPPING.hookSize] = item.hookSize;
+      row[CSV_COLUMN_MAPPING.rows] = item.rows.toString();
+      row[CSV_COLUMN_MAPPING.machineWash] = item.machineWash ? 'Yes' : 'No';
+      row[CSV_COLUMN_MAPPING.machineDry] = item.machineDry ? 'Yes' : 'No';
+      row[CSV_COLUMN_MAPPING.material] = item.material;
+      row[CSV_COLUMN_MAPPING.brandColor] = item.brandColor;
+      
+      // Handle up to 4 colors
+      if (item.colors.length > 0) row[CSV_COLUMN_MAPPING.color1] = item.colors[0];
+      if (item.colors.length > 1) row[CSV_COLUMN_MAPPING.color2] = item.colors[1];
+      if (item.colors.length > 2) row[CSV_COLUMN_MAPPING.color3] = item.colors[2];
+      if (item.colors.length > 3) row[CSV_COLUMN_MAPPING.color4] = item.colors[3];
+      
+      return row;
+    });
+    
+    // Use PapaParse to convert the data to CSV
+    return Papa.unparse({
+      fields: headers,
+      data: rows
+    });
   }
 
   private async checkForUpdates(): Promise<void> {
