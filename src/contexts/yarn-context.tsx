@@ -1,8 +1,8 @@
-
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { YarnItem, FilterState, SavedView } from "@/types/yarn";
 import CSVService from "@/services/csv-service";
 import { useToast } from "@/hooks/use-toast";
+import { getAllColorGroups } from "@/utils/color-utils";
 
 interface YarnContextType {
   data: YarnItem[];
@@ -54,6 +54,9 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
   
   // Initialize CSV service
   const csvService = useMemo(() => new CSVService(), []);
+
+  // Get all color groups for filtering
+  const allColorGroups = useMemo(() => getAllColorGroups(), []);
 
   // Load saved views from localStorage
   useEffect(() => {
@@ -199,7 +202,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
           // Check if this color belongs to any of the selected color groups
           return filters.colorGroups.some(groupName => {
             // Get the color group
-            const group = AllColorGroups.find(g => g.name === groupName);
+            const group = allColorGroups.find(g => g.name === groupName);
             if (!group) return false;
             
             // Check if this color is in the group
@@ -218,7 +221,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
       // Passed all filters
       return true;
     });
-  }, [data, filters]);
+  }, [data, filters, allColorGroups]);
 
   // Reset filters to default
   const resetFilters = () => {
@@ -297,14 +300,6 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
 
   return <YarnContext.Provider value={value}>{children}</YarnContext.Provider>;
 }
-
-// Color groups placeholder for type checking
-// The actual implementation is in color-utils.ts
-const AllColorGroups = [
-  { name: 'Reds', colors: ['red'], hue: 0 },
-  { name: 'Blues', colors: ['blue'], hue: 240 },
-  // etc.
-];
 
 export function useYarn() {
   const context = useContext(YarnContext);
