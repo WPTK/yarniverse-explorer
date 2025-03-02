@@ -85,7 +85,7 @@ const COLOR_MAP: Record<string, [number, number, number]> = {
   // Metallics
   'tinsel': [60, 30, 75], // Approximation as a golden/silver sparkle
   'gold': [50, 100, 50],
-  'silver': [0, 0, 75],
+  'silver metallic': [0, 0, 83], // Renamed to avoid duplicate key
 };
 
 // Color groups - used for filtering
@@ -142,7 +142,7 @@ const COLOR_GROUPS: ColorGroup[] = [
   },
   { 
     name: 'Metallics', 
-    colors: ['tinsel', 'gold', 'silver'], 
+    colors: ['tinsel', 'gold', 'silver metallic'], // Updated to use the new name
     hue: 45 
   },
 ];
