@@ -17,6 +17,7 @@ interface YarnContextType {
   loadSavedView: (id: string) => void;
   deleteSavedView: (id: string) => void;
   csvService: CSVService;
+  updateYarnItem: (id: string, updates: Partial<YarnItem>) => void;
 }
 
 // Updated default filter state with new fields
@@ -57,6 +58,33 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
 
   // Get all color groups for filtering
   const allColorGroups = useMemo(() => getAllColorGroups(), []);
+
+  // Update a yarn item
+  const updateYarnItem = (id: string, updates: Partial<YarnItem>) => {
+    setData(prevData => {
+      const updatedData = prevData.map(item => 
+        item.id === id ? { ...item, ...updates } : item
+      );
+      
+      // Save the updated data via the CSV service
+      try {
+        csvService.updateData(updatedData);
+        toast({
+          title: "Item Updated",
+          description: "The yarn item has been updated successfully.",
+        });
+      } catch (err) {
+        toast({
+          title: "Update Failed",
+          description: "Failed to update the yarn item. Please try again.",
+          variant: "destructive",
+        });
+        console.error("Error updating yarn item:", err);
+      }
+      
+      return updatedData;
+    });
+  };
 
   // Load saved views from localStorage
   useEffect(() => {
@@ -296,6 +324,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
     loadSavedView,
     deleteSavedView,
     csvService,
+    updateYarnItem,
   };
 
   return <YarnContext.Provider value={value}>{children}</YarnContext.Provider>;

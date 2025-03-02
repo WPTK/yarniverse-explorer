@@ -1,14 +1,49 @@
 
+import { useState } from "react";
 import { YarnItem } from "@/types/yarn";
 import { getColorCode } from "@/utils/color-utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Edit, Save, X } from "lucide-react";
+import { useYarn } from "@/contexts/yarn-context";
 
 interface GridViewProps {
   data: YarnItem[];
 }
 
 export function GridView({ data }: GridViewProps) {
+  const { updateYarnItem } = useYarn();
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{length: number, qty: number}>({ length: 0, qty: 0 });
+  
+  // Handle editing
+  const startEditing = (item: YarnItem) => {
+    setEditingItem(item.id);
+    setEditValues({ length: item.length, qty: item.qty });
+  };
+
+  const cancelEditing = () => {
+    setEditingItem(null);
+  };
+
+  const saveEditing = (id: string) => {
+    updateYarnItem(id, {
+      length: editValues.length,
+      qty: editValues.qty
+    });
+    setEditingItem(null);
+  };
+
+  const handleInputChange = (field: 'length' | 'qty', value: string) => {
+    const numValue = parseInt(value, 10) || 0;
+    setEditValues(prev => ({
+      ...prev,
+      [field]: numValue
+    }));
+  };
+  
   return (
     <ScrollArea className="h-full w-full custom-scrollbar">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-2">
@@ -31,7 +66,31 @@ export function GridView({ data }: GridViewProps) {
             <div className="grid grid-cols-2 gap-2 mt-4 text-sm">
               <div>
                 <p className="text-muted-foreground">Length</p>
-                <p className="font-medium">{item.length} yards</p>
+                {editingItem === item.id ? (
+                  <Input
+                    type="number"
+                    value={editValues.length}
+                    onChange={(e) => handleInputChange('length', e.target.value)}
+                    className="w-full h-8 mt-1"
+                    min="0"
+                  />
+                ) : (
+                  <p className="font-medium">{item.length} yards</p>
+                )}
+              </div>
+              <div>
+                <p className="text-muted-foreground">Quantity</p>
+                {editingItem === item.id ? (
+                  <Input
+                    type="number"
+                    value={editValues.qty}
+                    onChange={(e) => handleInputChange('qty', e.target.value)}
+                    className="w-full h-8 mt-1"
+                    min="0"
+                  />
+                ) : (
+                  <p className="font-medium">{item.qty}</p>
+                )}
               </div>
               <div>
                 <p className="text-muted-foreground">Weight</p>
@@ -61,6 +120,38 @@ export function GridView({ data }: GridViewProps) {
                   </div>
                 ))}
               </div>
+            </div>
+            
+            <div className="mt-4 flex justify-end">
+              {editingItem === item.id ? (
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-8"
+                    onClick={() => saveEditing(item.id)}
+                  >
+                    <Save className="h-4 w-4 mr-1" /> Save
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-8"
+                    onClick={cancelEditing}
+                  >
+                    <X className="h-4 w-4 mr-1" /> Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-8"
+                  onClick={() => startEditing(item)}
+                >
+                  <Edit className="h-4 w-4 mr-1" /> Edit
+                </Button>
+              )}
             </div>
           </div>
         ))}

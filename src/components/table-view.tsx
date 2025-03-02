@@ -4,8 +4,10 @@ import { YarnItem } from "@/types/yarn";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getColorCode } from "@/utils/color-utils";
 import { useState } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useYarn } from "@/contexts/yarn-context";
 
 interface TableViewProps {
   data: YarnItem[];
@@ -15,8 +17,37 @@ type SortField = 'brand' | 'subBrand' | 'length' | 'weight' | 'multicolor' | 'ro
 type SortDirection = 'asc' | 'desc' | null;
 
 export function TableView({ data }: TableViewProps) {
+  const { updateYarnItem } = useYarn();
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{length: number, qty: number}>({ length: 0, qty: 0 });
+
+  // Handle editing
+  const startEditing = (item: YarnItem) => {
+    setEditingItem(item.id);
+    setEditValues({ length: item.length, qty: item.qty });
+  };
+
+  const cancelEditing = () => {
+    setEditingItem(null);
+  };
+
+  const saveEditing = (id: string) => {
+    updateYarnItem(id, {
+      length: editValues.length,
+      qty: editValues.qty
+    });
+    setEditingItem(null);
+  };
+
+  const handleInputChange = (field: 'length' | 'qty', value: string) => {
+    const numValue = parseInt(value, 10) || 0;
+    setEditValues(prev => ({
+      ...prev,
+      [field]: numValue
+    }));
+  };
 
   // Handle sorting when a header is clicked
   const handleSort = (field: SortField) => {
@@ -117,6 +148,9 @@ export function TableView({ data }: TableViewProps) {
                 Length (yards) {getSortIcon('length')}
               </Button>
             </TableHead>
+            <TableHead className="text-right">
+              Quantity
+            </TableHead>
             <TableHead>
               <Button
                 variant="ghost"
@@ -145,6 +179,7 @@ export function TableView({ data }: TableViewProps) {
               </Button>
             </TableHead>
             <TableHead>Colors</TableHead>
+            <TableHead className="w-24">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -152,7 +187,32 @@ export function TableView({ data }: TableViewProps) {
             <TableRow key={item.id} className="page-transition animate-in" style={{ animationDelay: `${index * 20}ms` }}>
               <TableCell className="font-medium">{item.brand}</TableCell>
               <TableCell>{item.subBrand}</TableCell>
-              <TableCell className="text-right">{item.length}</TableCell>
+              <TableCell className="text-right">
+                {editingItem === item.id ? (
+                  <Input
+                    type="number"
+                    value={editValues.length}
+                    onChange={(e) => handleInputChange('length', e.target.value)}
+                    className="w-20 h-8 text-right inline-block"
+                    min="0"
+                  />
+                ) : (
+                  item.length
+                )}
+              </TableCell>
+              <TableCell className="text-right">
+                {editingItem === item.id ? (
+                  <Input
+                    type="number"
+                    value={editValues.qty}
+                    onChange={(e) => handleInputChange('qty', e.target.value)}
+                    className="w-20 h-8 text-right inline-block"
+                    min="0"
+                  />
+                ) : (
+                  item.qty
+                )}
+              </TableCell>
               <TableCell className="capitalize">{item.weight}</TableCell>
               <TableCell className="text-center">
                 {item.multicolor ? "Yes" : "No"}
@@ -169,6 +229,40 @@ export function TableView({ data }: TableViewProps) {
                     />
                   ))}
                 </div>
+              </TableCell>
+              <TableCell>
+                {editingItem === item.id ? (
+                  <div className="flex space-x-1">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => saveEditing(item.id)}
+                      title="Save"
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-8 w-8 p-0"
+                      onClick={cancelEditing}
+                      title="Cancel"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-8 w-8 p-0"
+                    onClick={() => startEditing(item)}
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
