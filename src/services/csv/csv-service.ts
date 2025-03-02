@@ -1,8 +1,19 @@
 
+/**
+ * CSV Service
+ * 
+ * Handles loading, monitoring, and updating CSV data.
+ * Provides interfaces for interacting with CSV files and managing data updates.
+ */
+
 import { YarnItem } from "@/types/yarn";
 import { parseCSVToYarnItems, convertYarnItemsToCSV } from "./csv-parser";
-import { CSVServiceOptions, CSVDataUpdateCallback } from "./csv-types";
+import { CSVServiceOptions, CSVDataUpdateCallback, CSVUpdateResult } from "./csv-types";
 
+/**
+ * Service for handling CSV data operations including loading, polling for updates,
+ * and providing mechanisms to update CSV data.
+ */
 class CSVService {
   private filePath: string;
   private lastModified: number = 0;
@@ -11,7 +22,14 @@ class CSVService {
   private onDataUpdate: CSVDataUpdateCallback | null = null;
   private loadAttempts: number = 0;
   private maxLoadAttempts: number;
+  private dataCache: YarnItem[] = [];
 
+  /**
+   * Creates a new instance of CSVService.
+   * 
+   * @param filePath - Path to the CSV file (defaults to "./data/yarn-collection.csv")
+   * @param options - Configuration options for the service
+   */
   constructor(
     filePath: string = "./data/yarn-collection.csv", 
     options: CSVServiceOptions = {}
@@ -22,13 +40,16 @@ class CSVService {
     
     // Ensure the file path is correctly prefixed if we're using the base path
     const basePath = import.meta.env.BASE_URL || '/';
-    this.filePath = basePath.endsWith('/') && !filePath.startsWith('./') 
-      ? `${basePath}${filePath.replace(/^\.\//, '')}`
-      : filePath;
+    this.filePath = this.normalizeFilePath(basePath, filePath);
     
     console.log("CSV file path:", this.filePath);
   }
 
+  /**
+   * Starts polling for CSV file updates.
+   * 
+   * @param callback - Function to call when data is updated
+   */
   public startPolling(callback: CSVDataUpdateCallback): void {
     this.onDataUpdate = callback;
     this.loadAttempts = 0;
@@ -42,6 +63,9 @@ class CSVService {
     }, this.pollingInterval);
   }
 
+  /**
+   * Stops polling for CSV file updates.
+   */
   public stopPolling(): void {
     if (this.intervalId !== null) {
       window.clearInterval(this.intervalId);
@@ -49,16 +73,24 @@ class CSVService {
     }
   }
 
-  public async updateData(updatedData: YarnItem[]): Promise<boolean> {
+  /**
+   * Updates the data in the CSV service.
+   * In a real-world application, this would update the actual CSV file.
+   * 
+   * @param updatedData - The new data to replace the existing data
+   * @returns Promise that resolves to a result object
+   */
+  public async updateData(updatedData: YarnItem[]): Promise<CSVUpdateResult> {
     try {
+      // Cache the updated data
+      this.dataCache = [...updatedData];
+      
       // Convert YarnItem array back to CSV format
       const csvData = convertYarnItemsToCSV(updatedData);
       
-      // In a real application, you would send this data to a server endpoint
-      // that would update the CSV file on the server. Since we're working with
-      // a local CSV file that can't be directly modified by the client,
-      // we'll log the data and return success for now.
-      console.log('Data update requested with:', csvData);
+      // In a real application, we would send this data to a server endpoint.
+      // Since we're working with a local CSV file, we just log and update the cache.
+      console.log('Data update requested:', { items: updatedData.length });
       
       // In a real implementation, you might do something like:
       // const response = await fetch('/api/update-csv', {
@@ -66,20 +98,51 @@ class CSVService {
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({ data: csvData }),
       // });
-      // return response.ok;
+      // return { success: response.ok, error: response.ok ? undefined : await response.text() };
       
-      // For now, let's just trigger a reload of the data after "updating"
+      // For now, let's just trigger an update to our data callback
       if (this.onDataUpdate) {
         this.onDataUpdate(updatedData);
       }
       
-      return true;
+      return { success: true };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('Error updating CSV data:', error);
-      return false;
+      return { 
+        success: false, 
+        error: `Failed to update data: ${errorMessage}`
+      };
     }
   }
 
+  /**
+   * Normalizes the file path by handling relative paths and base URLs properly.
+   * 
+   * @param basePath - The base path of the application
+   * @param filePath - The file path to normalize
+   * @returns Normalized file path
+   */
+  private normalizeFilePath(basePath: string, filePath: string): string {
+    // If filePath is already absolute, return it as is
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      return filePath;
+    }
+    
+    // Remove leading ./ from file path if present
+    const cleanFilePath = filePath.replace(/^\.\//, '');
+    
+    // Ensure basePath ends with / if it's not empty
+    const cleanBasePath = basePath.endsWith('/') || basePath === '' 
+      ? basePath 
+      : `${basePath}/`;
+    
+    return `${cleanBasePath}${cleanFilePath}`;
+  }
+
+  /**
+   * Checks if the CSV file has been updated.
+   */
   private async checkForUpdates(): Promise<void> {
     try {
       const response = await fetch(this.filePath, { 
@@ -103,6 +166,9 @@ class CSVService {
     }
   }
 
+  /**
+   * Loads data from the CSV file.
+   */
   private async loadData(): Promise<void> {
     try {
       const response = await fetch(this.filePath, { 
@@ -120,6 +186,8 @@ class CSVService {
       }
       
       const parsedData = parseCSVToYarnItems(csvText);
+      this.dataCache = parsedData;
+      
       if (this.onDataUpdate) {
         this.onDataUpdate(parsedData);
       }
@@ -133,6 +201,12 @@ class CSVService {
     }
   }
 
+  /**
+   * Handles errors that occur when loading the CSV file.
+   * Implements retry logic with exponential backoff.
+   * 
+   * @param error - The error that occurred
+   */
   private handleLoadError(error: any): void {
     this.loadAttempts++;
     

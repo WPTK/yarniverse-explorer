@@ -1,14 +1,29 @@
 
+/**
+ * CSV Parsing module
+ * 
+ * Handles the conversion between CSV data and application data models.
+ * Uses PapaParse for CSV parsing and formatting.
+ */
+
 import Papa from "papaparse";
 import { YarnItem, YarnWeight } from "@/types/yarn";
 import { CSV_COLUMN_MAPPING } from "./csv-types";
 
+/**
+ * Parses CSV text content into an array of YarnItem objects.
+ * 
+ * @param csvText - Raw CSV text content
+ * @returns Array of parsed YarnItem objects
+ */
 export function parseCSVToYarnItems(csvText: string): YarnItem[] {
+  // Parse CSV with headers
   const results = Papa.parse(csvText, {
     header: true,
     skipEmptyLines: true,
   });
   
+  // Log any parsing warnings
   if (results.errors && results.errors.length > 0) {
     console.warn('CSV parsing warnings:', results.errors);
   }
@@ -16,6 +31,12 @@ export function parseCSVToYarnItems(csvText: string): YarnItem[] {
   return processResults(results.data);
 }
 
+/**
+ * Converts an array of YarnItem objects into CSV format.
+ * 
+ * @param data - Array of YarnItem objects to convert
+ * @returns CSV-formatted string
+ */
 export function convertYarnItemsToCSV(data: YarnItem[]): string {
   // Get headers from our column mapping
   const headers = Object.values(CSV_COLUMN_MAPPING);
@@ -49,13 +70,19 @@ export function convertYarnItemsToCSV(data: YarnItem[]): string {
     return row;
   });
   
-  // Use PapaParse to convert the data to CSV
+  // Convert to CSV format using PapaParse
   return Papa.unparse({
     fields: headers,
     data: rows
   });
 }
 
+/**
+ * Processes raw CSV data rows into typed YarnItem objects.
+ * 
+ * @param data - Raw CSV data rows
+ * @returns Array of properly typed YarnItem objects
+ */
 function processResults(data: any[]): YarnItem[] {
   if (!Array.isArray(data) || data.length === 0) {
     console.warn('CSV data is empty or invalid');
@@ -71,32 +98,16 @@ function processResults(data: any[]): YarnItem[] {
       row[CSV_COLUMN_MAPPING.color4]
     ].filter(color => color && color.trim() !== '');
 
-    // Convert boolean values
-    const multicolorValue = row[CSV_COLUMN_MAPPING.multicolor]?.toLowerCase();
-    const isMulticolor = multicolorValue === 'yes' || multicolorValue === 'true' || multicolorValue === '1';
+    // Convert string values to boolean
+    const isMulticolor = convertToBoolean(row[CSV_COLUMN_MAPPING.multicolor]);
+    const isVintage = convertToBoolean(row[CSV_COLUMN_MAPPING.vintage]);
+    const isMachineWash = convertToBoolean(row[CSV_COLUMN_MAPPING.machineWash]);
+    const isMachineDry = convertToBoolean(row[CSV_COLUMN_MAPPING.machineDry]);
     
-    const vintageValue = row[CSV_COLUMN_MAPPING.vintage]?.toLowerCase();
-    const isVintage = vintageValue === 'yes' || vintageValue === 'true' || vintageValue === '1';
+    // Validate and normalize weight value
+    const weightValue = normalizeYarnWeight(row[CSV_COLUMN_MAPPING.weight]);
     
-    const machineWashValue = row[CSV_COLUMN_MAPPING.machineWash]?.toLowerCase();
-    const isMachineWash = machineWashValue === 'yes' || machineWashValue === 'true' || machineWashValue === '1';
-    
-    const machineDryValue = row[CSV_COLUMN_MAPPING.machineDry]?.toLowerCase();
-    const isMachineDry = machineDryValue === 'yes' || machineDryValue === 'true' || machineDryValue === '1';
-    
-    // Ensure weight is converted to valid YarnWeight type
-    let weightValue = (row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other') as string;
-    
-    // Convert to a valid YarnWeight value
-    const validWeights: YarnWeight[] = [
-      "lace", "super fine", "fine", "light", "medium", 
-      "bulky", "super bulky", "jumbo", "other"
-    ];
-    
-    if (!validWeights.includes(weightValue as YarnWeight)) {
-      weightValue = "other";
-    }
-    
+    // Create YarnItem object with validated properties
     return {
       id: `yarn-${index}`,
       brand: row[CSV_COLUMN_MAPPING.brand] || '',
@@ -116,4 +127,38 @@ function processResults(data: any[]): YarnItem[] {
       colors: colors
     };
   });
+}
+
+/**
+ * Helper function to convert various string representations to boolean.
+ * 
+ * @param value - String value that might represent a boolean
+ * @returns Converted boolean value
+ */
+function convertToBoolean(value?: string): boolean {
+  if (!value) return false;
+  
+  const normalized = value.toLowerCase().trim();
+  return normalized === 'yes' || normalized === 'true' || normalized === '1';
+}
+
+/**
+ * Normalizes yarn weight values to ensure they match the YarnWeight type.
+ * 
+ * @param weightValue - Raw weight value from CSV
+ * @returns Normalized weight value that conforms to YarnWeight type
+ */
+function normalizeYarnWeight(weightValue?: string): YarnWeight {
+  const normalized = (weightValue?.toLowerCase() || 'other') as string;
+  
+  // List of valid YarnWeight values
+  const validWeights: YarnWeight[] = [
+    "lace", "super fine", "fine", "light", "medium", 
+    "bulky", "super bulky", "jumbo", "other"
+  ];
+  
+  // Return the normalized value if valid, or "other" if not
+  return validWeights.includes(normalized as YarnWeight) 
+    ? normalized as YarnWeight 
+    : "other";
 }
