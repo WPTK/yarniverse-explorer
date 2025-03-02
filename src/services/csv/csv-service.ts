@@ -1,4 +1,3 @@
-
 /**
  * CSV Service
  * 
@@ -9,6 +8,7 @@
 import { YarnItem } from "@/types/yarn";
 import { parseCSVToYarnItems, convertYarnItemsToCSV } from "./csv-parser";
 import { CSVServiceOptions, CSVDataUpdateCallback, CSVUpdateResult } from "./csv-types";
+import { getSampleCSVData } from "@/utils/sample-data";
 
 /**
  * Service for handling CSV data operations including loading, polling for updates,
@@ -23,6 +23,7 @@ class CSVService {
   private loadAttempts: number = 0;
   private maxLoadAttempts: number;
   private dataCache: YarnItem[] = [];
+  private useSampleData: boolean = false;
 
   /**
    * Creates a new instance of CSVService.
@@ -37,12 +38,14 @@ class CSVService {
     // Set default options
     this.pollingInterval = options.pollingInterval || 5000; // Default: check every 5 seconds
     this.maxLoadAttempts = options.maxLoadAttempts || 3; // Default: 3 attempts
+    this.useSampleData = options.useSampleData || false;
     
     // Ensure the file path is correctly prefixed if we're using the base path
     const basePath = import.meta.env.BASE_URL || '/';
     this.filePath = this.normalizeFilePath(basePath, filePath);
     
     console.log("CSV file path:", this.filePath);
+    console.log("Using sample data:", this.useSampleData);
   }
 
   /**
@@ -57,10 +60,31 @@ class CSVService {
     // Initial load
     this.loadData();
     
+    // If we're using sample data, no need to poll for updates
+    if (this.useSampleData) {
+      return;
+    }
+    
     // Start polling for updates
     this.intervalId = window.setInterval(() => {
       this.checkForUpdates();
     }, this.pollingInterval);
+  }
+
+  /**
+   * Enables sample data mode, loading predefined data instead of from a CSV file.
+   * Useful for demonstration or when CSV file is not available.
+   */
+  public enableSampleData(): void {
+    this.useSampleData = true;
+    
+    // If we're already polling, stop and restart with sample data
+    if (this.intervalId !== null) {
+      this.stopPolling();
+      if (this.onDataUpdate) {
+        this.loadData();
+      }
+    }
   }
 
   /**
@@ -144,6 +168,11 @@ class CSVService {
    * Checks if the CSV file has been updated.
    */
   private async checkForUpdates(): Promise<void> {
+    // Skip update check if using sample data
+    if (this.useSampleData) {
+      return;
+    }
+    
     try {
       const response = await fetch(this.filePath, { 
         method: 'HEAD',
@@ -167,22 +196,31 @@ class CSVService {
   }
 
   /**
-   * Loads data from the CSV file.
+   * Loads data from the CSV file or sample data.
    */
   private async loadData(): Promise<void> {
     try {
-      const response = await fetch(this.filePath, { 
-        cache: 'no-store' // Ensure we don't get a cached response
-      });
+      let csvText: string;
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+      if (this.useSampleData) {
+        // Use sample data instead of loading from file
+        csvText = getSampleCSVData();
+        console.log("Using sample CSV data");
+      } else {
+        // Load from file as usual
+        const response = await fetch(this.filePath, { 
+          cache: 'no-store' // Ensure we don't get a cached response
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
+        }
+        
+        csvText = await response.text();
       }
       
-      const csvText = await response.text();
-      
       if (!csvText || csvText.trim() === '') {
-        throw new Error('CSV file is empty');
+        throw new Error('CSV data is empty');
       }
       
       const parsedData = parseCSVToYarnItems(csvText);
@@ -197,6 +235,17 @@ class CSVService {
       
     } catch (error) {
       console.error('Error loading CSV data:', error);
+      
+      if (this.useSampleData) {
+        console.error('Even sample data failed to load:', error);
+      } else {
+        // If loading from file fails, try using sample data
+        console.log('Loading from file failed, switching to sample data');
+        this.useSampleData = true;
+        this.loadData();
+        return;
+      }
+      
       this.handleLoadError(error);
     }
   }
