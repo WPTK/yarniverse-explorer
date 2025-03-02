@@ -14,7 +14,7 @@ import { DataView } from "@/components/data-view";
 import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
-import { Spool } from "lucide-react"; // Changed from Yarn to Spool which is a more appropriate icon for yarn
+import { Scissors } from "lucide-react"; // Changed to Scissors which is available in lucide-react
 
 /**
  * Main Index component that serves as the application entry point.
@@ -139,7 +139,7 @@ const Index = () => {
         <header className="border-b border-border sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
           <div className="container flex h-14 items-center justify-between py-3">
             <div className="flex items-center space-x-2">
-              <Spool className="h-5 w-5 text-primary" /> {/* Changed from Yarn to Spool */}
+              <Scissors className="h-5 w-5 text-primary" /> {/* Changed from Spool to Scissors */}
               <h1 className="text-lg font-semibold">Yarniverse Explorer</h1>
             </div>
             <ThemeToggle />
