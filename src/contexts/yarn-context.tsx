@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { YarnItem, FilterState, SavedView } from "@/types/yarn";
 import CSVService from "@/services/csv-service";
@@ -19,17 +18,23 @@ interface YarnContextType {
   csvService: CSVService;
 }
 
-// Default filter state
+// Updated default filter state with new fields
 const defaultFilters: FilterState = {
   brands: [],
   subBrands: [],
   weights: [],
+  materials: [],
+  vintage: null,
+  machineWash: null,
+  machineDry: null,
   multicolor: null,
   colorGroups: [],
   minLength: null,
   maxLength: null,
   minRows: null,
   maxRows: null,
+  minSoftness: null,
+  maxSoftness: null,
   search: "",
 };
 
@@ -104,6 +109,26 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
+      // Materials filter (new)
+      if (filters.materials.length > 0 && !filters.materials.includes(item.material)) {
+        return false;
+      }
+      
+      // Vintage filter (new)
+      if (filters.vintage !== null && item.vintage !== filters.vintage) {
+        return false;
+      }
+      
+      // Machine wash filter (new)
+      if (filters.machineWash !== null && item.machineWash !== filters.machineWash) {
+        return false;
+      }
+      
+      // Machine dry filter (new)
+      if (filters.machineDry !== null && item.machineDry !== filters.machineDry) {
+        return false;
+      }
+      
       // Multicolor filter
       if (filters.multicolor !== null && item.multicolor !== filters.multicolor) {
         return false;
@@ -125,13 +150,24 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      // Search filter
+      // Softness ranking range filter (new)
+      if (filters.minSoftness !== null && item.softnessRanking < filters.minSoftness) {
+        return false;
+      }
+      if (filters.maxSoftness !== null && item.softnessRanking > filters.maxSoftness) {
+        return false;
+      }
+      
+      // Search filter (updated to include new fields)
       if (filters.search && filters.search.trim() !== '') {
         const searchLower = filters.search.toLowerCase();
         const searchMatch = 
           item.brand.toLowerCase().includes(searchLower) ||
           item.subBrand.toLowerCase().includes(searchLower) ||
           item.weight.toLowerCase().includes(searchLower) ||
+          item.material.toLowerCase().includes(searchLower) ||
+          item.brandColor.toLowerCase().includes(searchLower) ||
+          item.hookSize.toLowerCase().includes(searchLower) ||
           item.colors.some(color => color.toLowerCase().includes(searchLower));
         
         if (!searchMatch) {

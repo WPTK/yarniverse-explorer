@@ -2,18 +2,26 @@
 import { YarnItem, YarnWeight } from "@/types/yarn";
 import Papa from "papaparse";
 
-// IMPORTANT: Update these column names to match your CSV structure
-// The keys should match the YarnItem interface properties
+// Updated column mapping to match new CSV structure
 const CSV_COLUMN_MAPPING = {
   brand: "Brand",
   subBrand: "Sub-brand",
+  vintage: "Vintage",
+  qty: "Qty",
   length: "Length (yards)",
   multicolor: "Multicolor",
+  softnessRanking: "Softness Ranking",
   weight: "Weight",
+  hookSize: "Hook Size",
   rows: "Rows",
+  machineWash: "Machine Wash",
+  machineDry: "Machine Dry",
+  material: "Material",
+  brandColor: "Brand Color",
   color1: "Color 1",
   color2: "Color 2",
   color3: "Color 3",
+  color4: "Color 4",
 };
 
 class CSVService {
@@ -149,12 +157,22 @@ class CSVService {
       const colors = [
         row[CSV_COLUMN_MAPPING.color1],
         row[CSV_COLUMN_MAPPING.color2],
-        row[CSV_COLUMN_MAPPING.color3]
+        row[CSV_COLUMN_MAPPING.color3],
+        row[CSV_COLUMN_MAPPING.color4] // Added Color 4
       ].filter(color => color && color.trim() !== '');
 
-      // Convert multicolor value to boolean
+      // Convert boolean values
       const multicolorValue = row[CSV_COLUMN_MAPPING.multicolor]?.toLowerCase();
       const isMulticolor = multicolorValue === 'yes' || multicolorValue === 'true' || multicolorValue === '1';
+      
+      const vintageValue = row[CSV_COLUMN_MAPPING.vintage]?.toLowerCase();
+      const isVintage = vintageValue === 'yes' || vintageValue === 'true' || vintageValue === '1';
+      
+      const machineWashValue = row[CSV_COLUMN_MAPPING.machineWash]?.toLowerCase();
+      const isMachineWash = machineWashValue === 'yes' || machineWashValue === 'true' || machineWashValue === '1';
+      
+      const machineDryValue = row[CSV_COLUMN_MAPPING.machineDry]?.toLowerCase();
+      const isMachineDry = machineDryValue === 'yes' || machineDryValue === 'true' || machineDryValue === '1';
       
       // Ensure weight is converted to valid YarnWeight type
       let weightValue = (row[CSV_COLUMN_MAPPING.weight]?.toLowerCase() || 'other') as string;
@@ -173,10 +191,18 @@ class CSVService {
         id: `yarn-${index}`,
         brand: row[CSV_COLUMN_MAPPING.brand] || '',
         subBrand: row[CSV_COLUMN_MAPPING.subBrand] || '',
+        vintage: isVintage,
+        qty: parseInt(row[CSV_COLUMN_MAPPING.qty], 10) || 0,
         length: parseInt(row[CSV_COLUMN_MAPPING.length], 10) || 0,
         multicolor: isMulticolor,
+        softnessRanking: parseInt(row[CSV_COLUMN_MAPPING.softnessRanking], 10) || 0,
         weight: weightValue as YarnWeight,
+        hookSize: row[CSV_COLUMN_MAPPING.hookSize] || '',
         rows: parseInt(row[CSV_COLUMN_MAPPING.rows], 10) || 0,
+        machineWash: isMachineWash,
+        machineDry: isMachineDry,
+        material: row[CSV_COLUMN_MAPPING.material] || '',
+        brandColor: row[CSV_COLUMN_MAPPING.brandColor] || '',
         colors: colors
       };
     });
