@@ -13,6 +13,7 @@ import { FiltersSidebar } from "@/components/filters-sidebar";
 import { DataView } from "@/components/data-view";
 import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { RefreshDataButton } from "@/components/refresh-data-button";
 import { useToast } from "@/hooks/use-toast";
 import { Rocket } from "lucide-react"; // Changed to Rocket icon
 
@@ -139,10 +140,13 @@ const Index = () => {
         <header className="border-b border-border sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
           <div className="container flex h-14 items-center justify-between py-3">
             <div className="flex items-center space-x-2">
-              <Rocket className="h-5 w-5 text-primary" /> {/* Changed from Scissors to Rocket */}
+              <Rocket className="h-5 w-5 text-primary" />
               <h1 className="text-lg font-semibold">Yarniverse Explorer</h1>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              {csvConfigured && !isCheckingCsv && <RefreshDataButton />}
+              <ThemeToggle />
+            </div>
           </div>
         </header>
         

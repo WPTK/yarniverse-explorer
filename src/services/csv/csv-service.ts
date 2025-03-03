@@ -1,4 +1,3 @@
-
 /**
  * CSV Service
  * 
@@ -117,6 +116,25 @@ class CSVService {
   }
 
   /**
+   * Manually checks for updates to the CSV file.
+   * Can be called to force an immediate check outside of the polling interval.
+   * 
+   * @returns Promise that resolves when the check is complete
+   */
+  public async checkForUpdates(): Promise<void> {
+    try {
+      // Use the private method to check for updates
+      await this.checkForCSVUpdates();
+      
+      // Force a reload of the data regardless of whether an update was detected
+      await this.loadData();
+    } catch (error) {
+      console.error('Error during manual update check:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Normalizes the file path by handling relative paths and base URLs properly.
    * 
    * @param basePath - The base path of the application
@@ -143,7 +161,7 @@ class CSVService {
   /**
    * Checks if the CSV file has been updated.
    */
-  private async checkForUpdates(): Promise<void> {
+  private async checkForCSVUpdates(): Promise<void> {
     try {
       const response = await fetch(this.filePath, { 
         method: 'HEAD',
@@ -164,6 +182,14 @@ class CSVService {
     } catch (error) {
       console.error('Error checking for CSV updates:', error);
     }
+  }
+
+  /**
+   * Checks if the CSV file has been updated.
+   * Renamed from checkForUpdates to avoid conflict with new public method.
+   */
+  private async checkForUpdates(): Promise<void> {
+    return this.checkForCSVUpdates();
   }
 
   /**
