@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useYarn } from "@/contexts/yarn-context";
 import { Button } from "@/components/ui/button";
@@ -35,63 +34,51 @@ export function FiltersSidebar() {
   const [showAllHookSizes, setShowAllHookSizes] = useState(false);
   const colorGroups = getAllColorGroups();
   
-  // Number of items to show initially
   const INITIAL_ITEMS_SHOWN = 5;
   
-  // Extract unique values from data
   useEffect(() => {
     if (data.length === 0) return;
     
-    // Get unique brands
     const brands = Array.from(new Set(data.map(item => item.brand))).filter(Boolean).sort();
     setUniqueBrands(brands);
     
-    // Get unique sub-brands
     const subBrands = Array.from(new Set(data.map(item => item.subBrand))).filter(Boolean).sort();
     setUniqueSubBrands(subBrands);
     
-    // Get unique weights
     const weights = Array.from(new Set(data.map(item => item.weight))) as YarnWeight[];
     setUniqueWeights(weights.filter(Boolean).sort());
     
-    // Get unique materials
     const materials = Array.from(new Set(data.map(item => item.material))).filter(Boolean).sort();
     setUniqueMaterials(materials);
     
-    // Get unique hook sizes
     const hookSizes = Array.from(new Set(data.map(item => item.hookSize))).filter(Boolean).sort();
     setUniqueHookSizes(hookSizes);
     
-    // Get min/max length
-    const lengths = data.map(item => item.length);
+    const lengths = data.map(item => item.length).filter(length => length !== undefined && length !== null);
     setLengthRange([
-      Math.min(...lengths),
-      Math.max(...lengths)
+      Math.min(...(lengths.length ? lengths : [0])),
+      Math.max(...(lengths.length ? lengths : [0]))
     ]);
     
-    // Get min/max quantity
-    const quantities = data.map(item => item.qty);
+    const quantities = data.map(item => item.qty).filter(qty => qty !== undefined && qty !== null);
     setQtyRange([
-      Math.min(...quantities),
-      Math.max(...quantities)
+      Math.min(...(quantities.length ? quantities : [0])),
+      Math.max(...(quantities.length ? quantities : [0]))
     ]);
     
-    // Get min/max rows
-    const rows = data.map(item => item.rows);
+    const rows = data.map(item => item.rows).filter(row => row !== undefined && row !== null);
     setRowsRange([
-      Math.min(...rows),
-      Math.max(...rows)
+      Math.min(...(rows.length ? rows : [0])),
+      Math.max(...(rows.length ? rows : [0]))
     ]);
     
-    // Get min/max softness ranking
-    const softnessRankings = data.map(item => item.softnessRanking);
+    const softnessRankings = data.map(item => item.softnessRanking).filter(ranking => ranking !== undefined && ranking !== null);
     setSoftnessRange([
-      Math.min(...softnessRankings),
-      Math.max(...softnessRankings)
+      Math.min(...(softnessRankings.length ? softnessRankings : [0])),
+      Math.max(...(softnessRankings.length ? softnessRankings : [0]))
     ]);
   }, [data]);
   
-  // Handle checkbox changes for filter arrays
   const handleArrayFilterChange = (
     key: 'brands' | 'subBrands' | 'weights' | 'colorGroups' | 'materials' | 'hookSizes',
     value: string,
@@ -105,7 +92,6 @@ export function FiltersSidebar() {
     });
   };
   
-  // Handle boolean toggle filters
   const handleBooleanChange = (
     key: 'multicolor' | 'vintage' | 'machineWash' | 'machineDry',
     value: boolean | null
@@ -116,7 +102,6 @@ export function FiltersSidebar() {
     });
   };
   
-  // Handle search input
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({
       ...filters,
@@ -124,13 +109,14 @@ export function FiltersSidebar() {
     });
   };
   
-  // Handle range filters
   const handleRangeChange = (
     minKey: 'minLength' | 'minRows' | 'minSoftness' | 'minQty',
     maxKey: 'maxLength' | 'maxRows' | 'maxSoftness' | 'maxQty',
     range: [number, number],
     value: number[]
   ) => {
+    if (!value.length) return;
+    
     setFilters({
       ...filters,
       [minKey]: value[0] === range[0] ? null : value[0],
@@ -138,12 +124,10 @@ export function FiltersSidebar() {
     });
   };
   
-  // Toggle showing all items
   const toggleShowAll = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
     setter(prev => !prev);
   };
   
-  // Get the displayed items based on show state
   const getDisplayedItems = <T,>(items: T[], showAll: boolean): T[] => {
     return showAll ? items : items.slice(0, INITIAL_ITEMS_SHOWN);
   };
@@ -179,7 +163,6 @@ export function FiltersSidebar() {
       </div>
       
       <ScrollArea className="flex-1 pr-3 overflow-y-auto">
-        {/* Brands section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Brands</h3>
           <div className="space-y-1 ml-1">
@@ -217,7 +200,6 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Sub-brands section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Sub-brands</h3>
           <div className="space-y-1 ml-1">
@@ -255,7 +237,6 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Weights section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Weights</h3>
           <div className="space-y-1 ml-1">
@@ -278,7 +259,6 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Materials section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Materials</h3>
           <div className="space-y-1 ml-1">
@@ -316,7 +296,6 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Hook Sizes section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Hook Sizes</h3>
           <div className="space-y-1 ml-1">
@@ -354,9 +333,7 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Boolean filters section */}
         <div className="space-y-4 mb-4">
-          {/* Vintage section */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Vintage</h3>
             <div className="space-y-1 ml-1">
@@ -383,7 +360,6 @@ export function FiltersSidebar() {
             </div>
           </div>
           
-          {/* Multicolor section */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Multicolor</h3>
             <div className="space-y-1 ml-1">
@@ -410,7 +386,6 @@ export function FiltersSidebar() {
             </div>
           </div>
           
-          {/* Machine Wash section */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Machine Wash</h3>
             <div className="space-y-1 ml-1">
@@ -437,7 +412,6 @@ export function FiltersSidebar() {
             </div>
           </div>
           
-          {/* Machine Dry section */}
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Machine Dry</h3>
             <div className="space-y-1 ml-1">
@@ -467,7 +441,6 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Color groups section */}
         <div className="space-y-2 mb-4">
           <h3 className="text-sm font-medium">Color Groups</h3>
           <div className="space-y-1 ml-1">
@@ -496,9 +469,7 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
-        {/* Range sliders section */}
         <div className="space-y-6 mb-4">
-          {/* Length range section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">Length (yards)</h3>
@@ -507,15 +478,15 @@ export function FiltersSidebar() {
               </span>
             </div>
             <Slider
-              defaultValue={[lengthRange[0]]}
+              value={[filters.minLength ?? lengthRange[0]]}
               min={lengthRange[0]}
               max={lengthRange[1]}
               step={10}
               onValueChange={(value) => handleRangeChange('minLength', 'maxLength', lengthRange, value)}
+              className="mt-2"
             />
           </div>
           
-          {/* Quantity range section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">Quantity</h3>
@@ -524,15 +495,15 @@ export function FiltersSidebar() {
               </span>
             </div>
             <Slider
-              defaultValue={[qtyRange[0]]}
+              value={[filters.minQty ?? qtyRange[0]]}
               min={qtyRange[0]}
               max={qtyRange[1]}
               step={1}
               onValueChange={(value) => handleRangeChange('minQty', 'maxQty', qtyRange, value)}
+              className="mt-2"
             />
           </div>
           
-          {/* Rows range section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">Rows</h3>
@@ -541,15 +512,15 @@ export function FiltersSidebar() {
               </span>
             </div>
             <Slider
-              defaultValue={[rowsRange[0]]}
+              value={[filters.minRows ?? rowsRange[0]]}
               min={rowsRange[0]}
               max={rowsRange[1]}
               step={1}
               onValueChange={(value) => handleRangeChange('minRows', 'maxRows', rowsRange, value)}
+              className="mt-2"
             />
           </div>
           
-          {/* Softness ranking range section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">Softness Ranking</h3>
@@ -558,11 +529,12 @@ export function FiltersSidebar() {
               </span>
             </div>
             <Slider
-              defaultValue={[softnessRange[0]]}
+              value={[filters.minSoftness ?? softnessRange[0]]}
               min={softnessRange[0]}
               max={softnessRange[1]}
               step={1}
               onValueChange={(value) => handleRangeChange('minSoftness', 'maxSoftness', softnessRange, value)}
+              className="mt-2"
             />
           </div>
         </div>
