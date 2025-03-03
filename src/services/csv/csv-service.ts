@@ -1,3 +1,4 @@
+
 /**
  * CSV Service
  * 
@@ -58,7 +59,7 @@ class CSVService {
     
     // Start polling for updates
     this.intervalId = window.setInterval(() => {
-      this.checkForUpdates();
+      this.checkForCSVUpdates();
     }, this.pollingInterval);
   }
 
@@ -160,6 +161,7 @@ class CSVService {
 
   /**
    * Checks if the CSV file has been updated.
+   * Private method used for both automatic and manual checks.
    */
   private async checkForCSVUpdates(): Promise<void> {
     try {
@@ -182,14 +184,6 @@ class CSVService {
     } catch (error) {
       console.error('Error checking for CSV updates:', error);
     }
-  }
-
-  /**
-   * Checks if the CSV file has been updated.
-   * Renamed from checkForUpdates to avoid conflict with new public method.
-   */
-  private async checkForUpdates(): Promise<void> {
-    return this.checkForCSVUpdates();
   }
 
   /**
