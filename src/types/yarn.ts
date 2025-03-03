@@ -18,7 +18,7 @@ export interface YarnItem {
   qty: number;
   length: number;
   multicolor: boolean;
-  softnessRanking: number;
+  softnessRanking: string; // Changed from number to string
   weight: YarnWeight;
   hookSize: string;
   rows: number;
@@ -52,8 +52,7 @@ export interface FilterState {
   maxQty: number | null;
   minRows: number | null;
   maxRows: number | null;
-  minSoftness: number | null;
-  maxSoftness: number | null;
+  softnessRankings: string[]; // Changed from min/max to array of strings
   search: string;
 }
 

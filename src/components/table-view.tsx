@@ -13,7 +13,7 @@ interface TableViewProps {
   data: YarnItem[];
 }
 
-type SortField = 'brand' | 'subBrand' | 'length' | 'weight' | 'multicolor' | 'rows';
+type SortField = 'brand' | 'subBrand' | 'length' | 'weight' | 'multicolor' | 'rows' | 'softnessRanking';
 type SortDirection = 'asc' | 'desc' | null;
 
 export function TableView({ data }: TableViewProps) {
@@ -107,6 +107,10 @@ export function TableView({ data }: TableViewProps) {
         valueA = a.rows;
         valueB = b.rows;
         break;
+      case 'softnessRanking':
+        valueA = a.softnessRanking.toLowerCase();
+        valueB = b.softnessRanking.toLowerCase();
+        break;
       default:
         return 0;
     }
@@ -178,6 +182,15 @@ export function TableView({ data }: TableViewProps) {
                 Rows {getSortIcon('rows')}
               </Button>
             </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                className="p-0 h-auto font-medium hover:bg-transparent hover:text-primary flex items-center"
+                onClick={() => handleSort('softnessRanking')}
+              >
+                Softness {getSortIcon('softnessRanking')}
+              </Button>
+            </TableHead>
             <TableHead>Colors</TableHead>
             <TableHead className="w-24">Actions</TableHead>
           </TableRow>
@@ -218,6 +231,7 @@ export function TableView({ data }: TableViewProps) {
                 {item.multicolor ? "Yes" : "No"}
               </TableCell>
               <TableCell className="text-right">{item.rows}</TableCell>
+              <TableCell>{item.softnessRanking}</TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {item.colors.map((color, i) => (

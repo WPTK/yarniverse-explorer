@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useYarn } from "@/contexts/yarn-context";
 import { Button } from "@/components/ui/button";
@@ -24,14 +25,15 @@ export function FiltersSidebar() {
   const [uniqueWeights, setUniqueWeights] = useState<YarnWeight[]>([]);
   const [uniqueMaterials, setUniqueMaterials] = useState<string[]>([]);
   const [uniqueHookSizes, setUniqueHookSizes] = useState<string[]>([]);
+  const [uniqueSoftnessRankings, setUniqueSoftnessRankings] = useState<string[]>([]); // New state for softness rankings
   const [lengthRange, setLengthRange] = useState<[number, number]>([0, 0]);
   const [qtyRange, setQtyRange] = useState<[number, number]>([0, 0]);
   const [rowsRange, setRowsRange] = useState<[number, number]>([0, 0]);
-  const [softnessRange, setSoftnessRange] = useState<[number, number]>([0, 0]);
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [showAllSubBrands, setShowAllSubBrands] = useState(false);
   const [showAllMaterials, setShowAllMaterials] = useState(false);
   const [showAllHookSizes, setShowAllHookSizes] = useState(false);
+  const [showAllSoftnessRankings, setShowAllSoftnessRankings] = useState(false); // New state for showing all softness rankings
   const colorGroups = getAllColorGroups();
   
   const INITIAL_ITEMS_SHOWN = 5;
@@ -54,6 +56,10 @@ export function FiltersSidebar() {
     const hookSizes = Array.from(new Set(data.map(item => item.hookSize))).filter(Boolean).sort();
     setUniqueHookSizes(hookSizes);
     
+    // Get unique softness rankings
+    const softnessRankings = Array.from(new Set(data.map(item => item.softnessRanking))).filter(Boolean).sort();
+    setUniqueSoftnessRankings(softnessRankings);
+    
     const lengths = data.map(item => item.length).filter(length => length !== undefined && length !== null);
     setLengthRange([
       Math.min(...(lengths.length ? lengths : [0])),
@@ -71,16 +77,10 @@ export function FiltersSidebar() {
       Math.min(...(rows.length ? rows : [0])),
       Math.max(...(rows.length ? rows : [0]))
     ]);
-    
-    const softnessRankings = data.map(item => item.softnessRanking).filter(ranking => ranking !== undefined && ranking !== null);
-    setSoftnessRange([
-      Math.min(...(softnessRankings.length ? softnessRankings : [0])),
-      Math.max(...(softnessRankings.length ? softnessRankings : [0]))
-    ]);
   }, [data]);
   
   const handleArrayFilterChange = (
-    key: 'brands' | 'subBrands' | 'weights' | 'colorGroups' | 'materials' | 'hookSizes',
+    key: 'brands' | 'subBrands' | 'weights' | 'colorGroups' | 'materials' | 'hookSizes' | 'softnessRankings',
     value: string,
     checked: boolean
   ) => {
@@ -110,8 +110,8 @@ export function FiltersSidebar() {
   };
   
   const handleRangeChange = (
-    minKey: 'minLength' | 'minRows' | 'minSoftness' | 'minQty',
-    maxKey: 'maxLength' | 'maxRows' | 'maxSoftness' | 'maxQty',
+    minKey: 'minLength' | 'minRows' | 'minQty',
+    maxKey: 'maxLength' | 'maxRows' | 'maxQty',
     range: [number, number],
     value: number[]
   ) => {
@@ -136,6 +136,7 @@ export function FiltersSidebar() {
   const displayedSubBrands = getDisplayedItems(uniqueSubBrands, showAllSubBrands);
   const displayedMaterials = getDisplayedItems(uniqueMaterials, showAllMaterials);
   const displayedHookSizes = getDisplayedItems(uniqueHookSizes, showAllHookSizes);
+  const displayedSoftnessRankings = getDisplayedItems(uniqueSoftnessRankings, showAllSoftnessRankings);
   
   return (
     <div className="p-4 rounded-lg glass-card h-full flex flex-col">
@@ -333,6 +334,44 @@ export function FiltersSidebar() {
         
         <Separator className="my-4" />
         
+        {/* New Softness Rankings filter section */}
+        <div className="space-y-2 mb-4">
+          <h3 className="text-sm font-medium">Softness Rankings</h3>
+          <div className="space-y-1 ml-1">
+            {displayedSoftnessRankings.map(ranking => (
+              <div key={ranking} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`softness-${ranking}`}
+                  checked={filters.softnessRankings.includes(ranking)}
+                  onCheckedChange={(checked) => 
+                    handleArrayFilterChange('softnessRankings', ranking, checked as boolean)
+                  }
+                />
+                <Label htmlFor={`softness-${ranking}`} className="text-sm">
+                  {ranking}
+                </Label>
+              </div>
+            ))}
+            
+            {uniqueSoftnessRankings.length > INITIAL_ITEMS_SHOWN && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => toggleShowAll(setShowAllSoftnessRankings)}
+                className="text-xs mt-1 w-full flex items-center justify-center"
+              >
+                {showAllSoftnessRankings ? (
+                  <>Show Less <ChevronUp className="ml-1 h-3 w-3" /></>
+                ) : (
+                  <>Show More ({uniqueSoftnessRankings.length - INITIAL_ITEMS_SHOWN} more) <ChevronDown className="ml-1 h-3 w-3" /></>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        <Separator className="my-4" />
+        
         <div className="space-y-4 mb-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Vintage</h3>
@@ -517,23 +556,6 @@ export function FiltersSidebar() {
               max={rowsRange[1]}
               step={1}
               onValueChange={(value) => handleRangeChange('minRows', 'maxRows', rowsRange, value)}
-              className="mt-2"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Softness Ranking</h3>
-              <span className="text-xs text-muted-foreground">
-                {filters.minSoftness ?? softnessRange[0]} - {filters.maxSoftness ?? softnessRange[1]}
-              </span>
-            </div>
-            <Slider
-              value={[filters.minSoftness ?? softnessRange[0]]}
-              min={softnessRange[0]}
-              max={softnessRange[1]}
-              step={1}
-              onValueChange={(value) => handleRangeChange('minSoftness', 'maxSoftness', softnessRange, value)}
               className="mt-2"
             />
           </div>

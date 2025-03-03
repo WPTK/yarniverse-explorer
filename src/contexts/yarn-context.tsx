@@ -38,8 +38,7 @@ const defaultFilters: FilterState = {
   maxQty: null,
   minRows: null,
   maxRows: null,
-  minSoftness: null,
-  maxSoftness: null,
+  softnessRankings: [],
   search: "",
 };
 
@@ -154,6 +153,11 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
+      // Softness Rankings filter (new)
+      if (filters.softnessRankings.length > 0 && !filters.softnessRankings.includes(item.softnessRanking)) {
+        return false;
+      }
+      
       // Vintage filter
       if (filters.vintage !== null && item.vintage !== filters.vintage) {
         return false;
@@ -198,14 +202,6 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      // Softness ranking range filter
-      if (filters.minSoftness !== null && item.softnessRanking < filters.minSoftness) {
-        return false;
-      }
-      if (filters.maxSoftness !== null && item.softnessRanking > filters.maxSoftness) {
-        return false;
-      }
-      
       // Search filter (updated to include all relevant fields)
       if (filters.search && filters.search.trim() !== '') {
         const searchLower = filters.search.toLowerCase();
@@ -216,6 +212,7 @@ export function YarnProvider({ children }: { children: React.ReactNode }) {
           item.material.toLowerCase().includes(searchLower) ||
           item.brandColor.toLowerCase().includes(searchLower) ||
           item.hookSize.toLowerCase().includes(searchLower) ||
+          item.softnessRanking.toLowerCase().includes(searchLower) ||
           item.colors.some(color => color.toLowerCase().includes(searchLower));
         
         if (!searchMatch) {

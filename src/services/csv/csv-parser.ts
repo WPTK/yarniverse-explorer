@@ -52,7 +52,7 @@ export function convertYarnItemsToCSV(data: YarnItem[]): string {
     row[CSV_COLUMN_MAPPING.qty] = item.qty.toString();
     row[CSV_COLUMN_MAPPING.length] = item.length.toString();
     row[CSV_COLUMN_MAPPING.multicolor] = item.multicolor ? 'Yes' : 'No';
-    row[CSV_COLUMN_MAPPING.softnessRanking] = item.softnessRanking.toString();
+    row[CSV_COLUMN_MAPPING.softnessRanking] = item.softnessRanking; // Keep as string
     row[CSV_COLUMN_MAPPING.weight] = item.weight;
     row[CSV_COLUMN_MAPPING.hookSize] = item.hookSize;
     row[CSV_COLUMN_MAPPING.rows] = item.rows.toString();
@@ -116,7 +116,7 @@ function processResults(data: any[]): YarnItem[] {
       qty: parseInt(row[CSV_COLUMN_MAPPING.qty], 10) || 0,
       length: parseInt(row[CSV_COLUMN_MAPPING.length], 10) || 0,
       multicolor: isMulticolor,
-      softnessRanking: parseInt(row[CSV_COLUMN_MAPPING.softnessRanking], 10) || 0,
+      softnessRanking: row[CSV_COLUMN_MAPPING.softnessRanking] || '', // Keep as string
       weight: weightValue as YarnWeight,
       hookSize: row[CSV_COLUMN_MAPPING.hookSize] || '',
       rows: parseInt(row[CSV_COLUMN_MAPPING.rows], 10) || 0,
