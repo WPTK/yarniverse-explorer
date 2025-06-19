@@ -1,4 +1,3 @@
-
 /**
  * Main Index Page
  * 
@@ -14,8 +13,10 @@ import { DataView } from "@/components/data-view";
 import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { RefreshDataButton } from "@/components/refresh-data-button";
+import { UPCScanner } from "@/components/upc-scanner";
 import { useToast } from "@/hooks/use-toast";
-import { Rocket } from "lucide-react"; // Changed to Rocket icon
+import { Rocket, Scan } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * Main Index component that serves as the application entry point.
@@ -24,6 +25,7 @@ const Index = () => {
   const { toast } = useToast();
   const [csvConfigured, setCsvConfigured] = useState<boolean | null>(null);
   const [isCheckingCsv, setIsCheckingCsv] = useState(true);
+  const [showUPCScanner, setShowUPCScanner] = useState(false);
   
   /**
    * Check if CSV file exists on mount and configure the application state accordingly.
@@ -83,6 +85,10 @@ const Index = () => {
       <div className="md:hidden mt-4">
         <SavedViews />
       </div>
+
+      {showUPCScanner && (
+        <UPCScanner onClose={() => setShowUPCScanner(false)} />
+      )}
     </>
   );
   
@@ -144,7 +150,19 @@ const Index = () => {
               <h1 className="text-lg font-semibold">Yarniverse Explorer</h1>
             </div>
             <div className="flex items-center gap-2">
-              {csvConfigured && !isCheckingCsv && <RefreshDataButton />}
+              {csvConfigured && !isCheckingCsv && (
+                <>
+                  <Button
+                    onClick={() => setShowUPCScanner(true)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Scan className="h-4 w-4 mr-2" />
+                    Scan UPC
+                  </Button>
+                  <RefreshDataButton />
+                </>
+              )}
               <ThemeToggle />
             </div>
           </div>
