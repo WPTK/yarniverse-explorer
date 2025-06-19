@@ -1,3 +1,4 @@
+
 /**
  * Main Index Page
  * 
@@ -14,9 +15,26 @@ import { SavedViews } from "@/components/saved-views";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { RefreshDataButton } from "@/components/refresh-data-button";
 import { UPCScanner } from "@/components/upc-scanner";
+import { QuickScanMode } from "@/components/quick-scan-mode";
+import { QuickScanReview } from "@/components/quick-scan-review";
 import { useToast } from "@/hooks/use-toast";
-import { Rocket, Scan } from "lucide-react";
+import { Rocket, Scan, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+type ScanMode = 'none' | 'single' | 'quick' | 'review';
+
+interface QuickScanSessionData {
+  items: Array<{
+    upc: string;
+    timestamp: Date;
+    isNew: boolean;
+    existingItem?: any;
+    lookupData?: any;
+  }>;
+  newItemsCount: number;
+  updatedItemsCount: number;
+  totalScans: number;
+}
 
 /**
  * Main Index component that serves as the application entry point.
@@ -25,7 +43,8 @@ const Index = () => {
   const { toast } = useToast();
   const [csvConfigured, setCsvConfigured] = useState<boolean | null>(null);
   const [isCheckingCsv, setIsCheckingCsv] = useState(true);
-  const [showUPCScanner, setShowUPCScanner] = useState(false);
+  const [scanMode, setScanMode] = useState<ScanMode>('none');
+  const [quickScanSession, setQuickScanSession] = useState<QuickScanSessionData | null>(null);
   
   /**
    * Check if CSV file exists on mount and configure the application state accordingly.
@@ -56,6 +75,16 @@ const Index = () => {
     
     checkCsvFile();
   }, [toast]);
+
+  const handleQuickScanComplete = (sessionData: QuickScanSessionData) => {
+    setQuickScanSession(sessionData);
+    setScanMode('review');
+  };
+
+  const handleQuickScanReviewComplete = () => {
+    setQuickScanSession(null);
+    setScanMode('none');
+  };
   
   /**
    * Renders the application content when CSV is properly configured.
@@ -86,8 +115,24 @@ const Index = () => {
         <SavedViews />
       </div>
 
-      {showUPCScanner && (
-        <UPCScanner onClose={() => setShowUPCScanner(false)} />
+      {/* Scanning Modals */}
+      {scanMode === 'single' && (
+        <UPCScanner onClose={() => setScanMode('none')} />
+      )}
+
+      {scanMode === 'quick' && (
+        <QuickScanMode 
+          onComplete={handleQuickScanComplete}
+          onClose={() => setScanMode('none')} 
+        />
+      )}
+
+      {scanMode === 'review' && quickScanSession && (
+        <QuickScanReview
+          sessionData={quickScanSession}
+          onComplete={handleQuickScanReviewComplete}
+          onClose={handleQuickScanReviewComplete}
+        />
       )}
     </>
   );
@@ -153,12 +198,20 @@ const Index = () => {
               {csvConfigured && !isCheckingCsv && (
                 <>
                   <Button
-                    onClick={() => setShowUPCScanner(true)}
+                    onClick={() => setScanMode('quick')}
+                    variant="default"
+                    size="sm"
+                  >
+                    <Zap className="h-4 w-4 mr-2" />
+                    Quick Scan
+                  </Button>
+                  <Button
+                    onClick={() => setScanMode('single')}
                     variant="outline"
                     size="sm"
                   >
                     <Scan className="h-4 w-4 mr-2" />
-                    Scan UPC
+                    Single Scan
                   </Button>
                   <RefreshDataButton />
                 </>
@@ -187,6 +240,57 @@ const Index = () => {
       </div>
     </YarnProvider>
   );
+
+  /**
+   * Renders a loading state while checking for CSV.
+   */
+  function renderLoadingState() {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p className="mt-4 text-muted-foreground">Checking for CSV data...</p>
+      </div>
+    );
+  }
+  
+  /**
+   * Renders the setup instructions when CSV is not configured.
+   */
+  function renderSetupInstructions() {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh]">
+        <div className="glass-card p-6 max-w-md text-center border border-border rounded-lg shadow-sm bg-card/50 backdrop-blur-sm">
+          <h2 className="text-xl font-semibold mb-3">CSV File Setup Required</h2>
+          <p className="mb-4">
+            To use this application, you need to create a CSV file with your yarn collection data.
+          </p>
+          <div className="text-left space-y-3">
+            <div>
+              <h3 className="font-medium mb-1">1. Create a CSV file with these columns:</h3>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Brand</li>
+                <li>Sub-brand</li>
+                <li>Length (yards)</li>
+                <li>Multicolor (Yes/No)</li>
+                <li>Weight</li>
+                <li>Rows</li>
+                <li>Color 1</li>
+                <li>Color 2</li>
+                <li>Color 3</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">2. Save the file at:</h3>
+              <p className="text-sm font-mono bg-muted p-2 rounded">/data/yarn-collection.csv</p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-1">3. Refresh this page</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default Index;
