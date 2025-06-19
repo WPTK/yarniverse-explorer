@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -23,17 +22,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [mounted, setMounted] = useState(false);
-
-  // Ensure theme is applied after component mounts
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-  
   // Check if we're in development mode
   const isDevelopment = import.meta.env.MODE === 'development';
   // Use empty basename in development mode to avoid routing issues
